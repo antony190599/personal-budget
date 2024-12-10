@@ -1,0 +1,51 @@
+/* Reset */
+:root{
+  --blanco: #fff5e6; 
+  --fondo: linear-gradient(to right, #FFA500, #FF4500); 
+  --boton: #ff6f61; 
+  --sombra: rgba(255, 165, 0, 0.3); 
+
+}
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: content-box;
+}
+body
+{
+  background: var(--fondo);
+}
+
+
+form,#container-gastos-promedio,#container-historial,#container-Balance,main,#Promedio-Ingresos-contenido{
+  display: flex;
+  flex-direction: column;
+}
+
+main
+{
+  margin-top: 10%;
+   align-items: center;
+   justify-content: center;
+   gap: 3rem;
+  
+}
+form,#container-historial,#container-Balance,#container-Ingresos-promedio,#container-Gastos-Promedio{
+  background-color: var(--blanco);
+  width: 100%;
+  padding: 1.5%;
+  gap: 1rem;
+  border-radius: 0.5rem;
+
+}
+
+button{
+  background-color: var(--boton);
+  color: var(--blanco);
+  border: none;
+  padding: 10px;
+  border-radius: 0.5rem;
+}
+section{
+  width: 40%;
+}
