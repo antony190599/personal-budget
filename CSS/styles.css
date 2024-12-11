@@ -13,39 +13,39 @@
 }
 body
 {
-  background: var(--fondo);
+    background: var(--fondo);
 }
 
 
-form,#container-gastos-promedio,#container-historial,#container-Balance,main,#Promedio-Ingresos-contenido{
-  display: flex;
-  flex-direction: column;
+form,#contenedor-Promedio-Gastos,#contenedor-historial,#contenedor-Balance,main,#contenedor-Promedio-Ingresos{
+    display: flex;
+    flex-direction: column;
 }
 
 main
 {
-  margin-top: 10%;
-   align-items: center;
-   justify-content: center;
-   gap: 3rem;
-  
+    margin-top: 10%;
+     align-items: center;
+     justify-content: center;
+     gap: 3rem;
+    
 }
-form,#container-historial,#container-Balance,#container-Ingresos-promedio,#container-Gastos-Promedio{
-  background-color: var(--blanco);
-  width: 100%;
-  padding: 1.5%;
-  gap: 1rem;
-  border-radius: 0.5rem;
+form,#contenedor-historial,#contenedor-Balance,#contenedor-Promedio-Ingresos,#contenedor-Promedio-Gastos{
+    background-color: var(--blanco);
+    width: 100%;
+    padding: 1.5%;
+    gap: 1rem;
+    border-radius: 0.5rem;
 
 }
 
 button{
-  background-color: var(--boton);
-  color: var(--blanco);
-  border: none;
-  padding: 10px;
-  border-radius: 0.5rem;
+    background-color: var(--boton);
+    color: var(--blanco);
+    border: none;
+    padding: 10px;
+    border-radius: 0.5rem;
 }
 section{
-  width: 40%;
+    width: 40%;
 }

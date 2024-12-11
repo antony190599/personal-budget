@@ -1,89 +1,80 @@
 class Almacenar {
   constructor(fecha, tipo, monto) {
-      this.fecha = fecha;
-      this.tipo = tipo;
-      this.monto = monto;
+    this.fecha = fecha;
+    this.tipo = tipo;
+    this.monto = monto;
   }
 }
-
-// Elementos del DOM
-const formulario = document.getElementById('formulario');
-const montoInput = document.getElementById('input-monto');
-const tipoSelect = document.getElementById('tipo');
-const botonOrdenar = document.getElementById('btn-ordenar');
-const balanceDisplay = document.getElementById("contenido-balance");
-const ingresosDisplay = document.getElementById("contenido-Promedio-Ingresos");
-const gastosDisplay = document.getElementById("contenido-Promedio-Gastos");
-const historial = document.getElementById("contenido");
-
+const formulario = document.getElementById("formulario");
+const monto = document.getElementById("input-monto");
+const tipo = document.getElementById("tipo");
+const botonOrdenar = document.getElementById("btn-ordenar");
+const balance = document.getElementById("contenido-balance");
+const pIngresos = document.getElementById("contenido-Promedio-Ingresos");
+const pGastos = document.getElementById("contenido-Promedio-Gastos");
 const transacciones = [];
-let balance = 0;
+const ingresos = [];
+const gastos = [];
+const historial = document.getElementById("contenido");
+//temporal=0
+let temp = 0;
+balance.textContent = formatearMonto(temp, "S/.");
+pIngresos.textContent = formatearMonto(temp, "S/.");
+pGastos.textContent = formatearMonto(temp, "S/.");
 
-// Funciones Utilitarias
-const formatearMonto = (monto, moneda) => `${moneda} ${monto.toFixed(2)}`;
-
-const actualizarDisplays = () => {
-  const ingresos = transacciones
-      .filter(t => t.tipo === 'ingreso')
-      .reduce((acc, t) => acc + t.monto, 0);
-
-  const gastos = transacciones
-      .filter(t => t.tipo === 'gasto')
-      .reduce((acc, t) => acc + t.monto, 0);
-
-  balance = ingresos - gastos;
-
-  balanceDisplay.textContent = formatearMonto(balance, "S/.");
-  ingresosDisplay.textContent = formatearMonto(ingresos, "S/.");
-  gastosDisplay.textContent = formatearMonto(gastos, "S/.");
-};
-
-const validarMonto = monto => {
-  if (isNaN(monto) || monto <= 0) {
-      alert("Por favor, ingrese un monto válido.");
-      return false;
-  }
-  return true;
-};
-
-const crearElementoTransaccion = ({ fecha, tipo, monto }) => {
-  const elemento = document.createElement("p");
-  const signo = tipo === "ingreso" ? "+" : "-";
-  elemento.textContent = `${fecha}: ${tipo} ${signo}${monto}`;
-  return elemento;
-};
-
-// Eventos
-formulario.addEventListener('submit', function (event) {
+formulario.addEventListener("submit", function (event) {
   event.preventDefault();
 
-  const monto = parseFloat(montoInput.value);
-  const tipo = tipoSelect.value;
-
-  if (!validarMonto(monto)) return;
-
-  const fecha = new Date().toLocaleString();
-  const nuevaTransaccion = new Almacenar(fecha, tipo, monto);
-
-  transacciones.push(nuevaTransaccion);
-  historial.appendChild(crearElementoTransaccion(nuevaTransaccion));
-
-  actualizarDisplays();
-  formulario.reset();
+  registrarTransaccion(tipo.value, parseFloat(monto.value));
 });
 
-botonOrdenar.addEventListener('click', function () {
+function registrarTransaccion(tipo, monto) {
+  const fecha = new Date();
+  this.fecha = `${fecha.getDate()}/${
+    fecha.getMonth() + 1
+  }/${fecha.getFullYear()} - ${fecha.getHours()}:${fecha.getMinutes()}`;
+  let temp = new Almacenar(this.fecha, tipo, monto);
+  if (monto > 0) {
+    const elemento = document.createElement("p");
+    if (tipo === "ingreso") {
+      elemento.textContent = this.fecha + " " + temp.tipo + " +" + temp.monto;
+      transacciones.push(temp);
+      ingresos.push(temp);
+    } //gasto
+    else {
+      if (temp.monto >= 0) {
+        elemento.textContent = this.fecha + " " + temp.tipo + " -" + temp.monto;
+        transacciones.push(temp);
+        gastos.push(temp);
+
+      } else {
+        alert("ingrese un ingreso");
+      }
+    }
+    historial.appendChild(elemento);
+    
+    balance.textContent = formatearMonto(calcularBalance(transacciones), "S/.");
+    pIngresos.textContent = formatearMonto(calcularBalance(ingresos), "S/.");
+    pGastos.textContent = formatearMonto(calcularBalance(gastos), "S/.");
+  } else {
+    validarValor(monto);
+  }
+}
+botonOrdenar.addEventListener("click", function () {
   historial.innerHTML = "";
 
   transacciones.sort((a, b) => {
-      if (a.tipo !== b.tipo) return a.tipo.localeCompare(b.tipo);
-      return b.monto - a.monto;
+    if (a.tipo > b.tipo) return 1;
+    if (a.tipo < b.tipo) return -1;
+    return b.monto - a.monto;
   });
-
-  transacciones.forEach(transaccion => {
-      historial.appendChild(crearElementoTransaccion(transaccion));
+  transacciones.forEach((transaccion) => {
+    const elemento = document.createElement("p");
+    if (transaccion.tipo === "ingreso") {
+      elemento.textContent = `${transaccion.fecha}: ${transaccion.tipo}: +${transaccion.monto}`;
+    } else {
+      elemento.textContent = `${transaccion.fecha}: ${transaccion.tipo}: -${transaccion.monto}`;
+    }
+    historial.appendChild(elemento);
   });
 });
-
-// Inicialización
-actualizarDisplays();
