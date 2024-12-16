@@ -1,11 +1,24 @@
 function validarValor(monto) {
+    monto = parseFloat(monto);
+
     if (isNaN(monto)) {
-        alert("Esto no es un numero")
-        return false
+        mostrarMensaje("Por favor, ingrese un número válido.", "error");
+        return false;
     }
-    if (monto < 0) {
-        alert("Este monto es menor a 0")
-        return false
+
+    if (monto <= 0) {
+        mostrarMensaje("El monto debe ser mayor a 0.", "error");
+        return false;
     }
-    return alert("El monto es correcto")
+
+    return true;
+}
+
+function mostrarMensaje(mensaje, tipo) {
+    const mensajeDiv = document.getElementById("mensaje-validacion") || document.createElement("div");
+    mensajeDiv.id = "mensaje-validacion";
+    mensajeDiv.className = tipo === "error" ? "mensaje-error" : "mensaje-exito";
+    mensajeDiv.textContent = mensaje;
+    document.body.appendChild(mensajeDiv);
+    setTimeout(() => mensajeDiv.remove(), 3000);
 }
