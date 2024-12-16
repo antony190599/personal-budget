@@ -1,80 +1,72 @@
-class Almacenar {
-  constructor(fecha, tipo, monto) {
-    this.fecha = fecha;
-    this.tipo = tipo;
-    this.monto = monto;
-  }
-}
+const presupuesto = new Budget();
+
 const formulario = document.getElementById("formulario");
-const monto = document.getElementById("input-monto");
-const tipo = document.getElementById("tipo");
-const botonOrdenar = document.getElementById("btn-ordenar");
+const montoInput = document.getElementById("input-monto");
+const tipoInput = document.getElementById("tipo");
 const balance = document.getElementById("contenido-balance");
 const pIngresos = document.getElementById("contenido-Promedio-Ingresos");
 const pGastos = document.getElementById("contenido-Promedio-Gastos");
-const transacciones = [];
-const ingresos = [];
-const gastos = [];
 const historial = document.getElementById("contenido");
-//temporal=0
-let temp = 0;
-balance.textContent = formatearMonto(temp, "S/.");
-pIngresos.textContent = formatearMonto(temp, "S/.");
-pGastos.textContent = formatearMonto(temp, "S/.");
+const botonOrdenar = document.getElementById("btn-ordenar");
 
-formulario.addEventListener("submit", function (event) {
-  event.preventDefault();
+// Actualiza las transacciones en el DOM
+function actualizarHistorial() {
+    historial.innerHTML = "";
+    presupuesto.transactions.forEach(transaction => {
+        const elemento = document.createElement("p");
+        elemento.textContent = `${transaction.getFormattedDate()} - ${transaction.type}: S/. ${transaction.amount.toFixed(2)}`;
 
-  registrarTransaccion(tipo.value, parseFloat(monto.value));
-});
+        const botonEliminar = document.createElement("button");
+        botonEliminar.textContent = "Eliminar";
+        botonEliminar.addEventListener("click", () => {
+            presupuesto.remove(transaction.id);
+            actualizarUI();
+        });
 
-function registrarTransaccion(tipo, monto) {
-  const fecha = new Date();
-  this.fecha = `${fecha.getDate()}/${
-    fecha.getMonth() + 1
-  }/${fecha.getFullYear()} - ${fecha.getHours()}:${fecha.getMinutes()}`;
-  let temp = new Almacenar(this.fecha, tipo, monto);
-  if (monto > 0) {
-    const elemento = document.createElement("p");
-    if (tipo === "ingreso") {
-      elemento.textContent = this.fecha + " " + temp.tipo + " +" + temp.monto;
-      transacciones.push(temp);
-      ingresos.push(temp);
-    } //gasto
-    else {
-      if (temp.monto >= 0) {
-        elemento.textContent = this.fecha + " " + temp.tipo + " -" + temp.monto;
-        transacciones.push(temp);
-        gastos.push(temp);
-
-      } else {
-        alert("ingrese un ingreso");
-      }
-    }
-    historial.appendChild(elemento);
-    
-    balance.textContent = formatearMonto(calcularBalance(transacciones), "S/.");
-    pIngresos.textContent = formatearMonto(calcularBalance(ingresos), "S/.");
-    pGastos.textContent = formatearMonto(calcularBalance(gastos), "S/.");
-  } else {
-    validarValor(monto);
-  }
+        elemento.appendChild(botonEliminar);
+        historial.appendChild(elemento);
+    });
 }
-botonOrdenar.addEventListener("click", function () {
-  historial.innerHTML = "";
 
-  transacciones.sort((a, b) => {
-    if (a.tipo > b.tipo) return 1;
-    if (a.tipo < b.tipo) return -1;
-    return b.monto - a.monto;
-  });
-  transacciones.forEach((transaccion) => {
-    const elemento = document.createElement("p");
-    if (transaccion.tipo === "ingreso") {
-      elemento.textContent = `${transaccion.fecha}: ${transaccion.tipo}: +${transaccion.monto}`;
-    } else {
-      elemento.textContent = `${transaccion.fecha}: ${transaccion.tipo}: -${transaccion.monto}`;
+// Actualiza el balance y los promedios en el DOM
+function actualizarUI() {
+    balance.textContent = `S/. ${presupuesto.calculateTotal().toFixed(2)}`;
+    actualizarPromedios();
+    actualizarHistorial();
+}
+
+// Calcula y actualiza los promedios de ingresos y gastos
+function actualizarPromedios() {
+    const ingresos = presupuesto.transactions.filter(t => t.type === "ingreso");
+    const gastos = presupuesto.transactions.filter(t => t.type === "gasto");
+
+    const promedioIngresos = ingresos.length ? ingresos.reduce((sum, t) => sum + t.amount, 0) / ingresos.length : 0;
+    const promedioGastos = gastos.length ? gastos.reduce((sum, t) => sum + t.amount, 0) / gastos.length : 0;
+
+    pIngresos.textContent = `S/. ${promedioIngresos.toFixed(2)}`;
+    pGastos.textContent = `S/. ${promedioGastos.toFixed(2)}`;
+}
+
+// Agregar nueva transacción
+formulario.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const monto = parseFloat(montoInput.value);
+    const tipo = tipoInput.value;
+
+    if (validarValor(monto)) {
+        const nuevaTransaccion = new Transaction(tipo, monto);
+        presupuesto.add(nuevaTransaccion);
+        actualizarUI();
+        formulario.reset();
     }
-    historial.appendChild(elemento);
-  });
 });
+
+// Ordenar transacciones por monto
+botonOrdenar.addEventListener("click", () => {
+    presupuesto.transactions.sort((a, b) => b.amount - a.amount);
+    actualizarHistorial();
+});
+
+// Inicialización
+actualizarUI();
