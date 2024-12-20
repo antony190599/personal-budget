@@ -1,51 +1,232 @@
-/* Reset */
-:root{
-  --blanco: #fff5e6; 
-  --fondo: linear-gradient(to right, #FFA500, #FF4500); 
-  --boton: #ff6f61; 
-  --sombra: rgba(255, 165, 0, 0.3); 
 
-}
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: content-box;
-}
-body
-{
+:root {
+    --blanco: #fff5e6;
+    --fondo: linear-gradient(to right, #FFA500, #FF4500);
+    --boton: #ff6f61;
+    --sombra: rgba(255, 165, 0, 0.3);
+    --texto: #333;
+    --verde: #28a745;
+    --rojo: #dc3545;
+  }
+
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  
+  body {
     background: var(--fondo);
-}
-
-
-form,#contenedor-Promedio-Gastos,#contenedor-historial,#contenedor-Balance,main,#contenedor-Promedio-Ingresos{
+    font-family: Arial, sans-serif;
+    color: var(--texto);
+    line-height: 1.6;
+  }
+  
+  
+  header {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 2px solid var(--boton);
+  }
+  
+  header h1 {
+    color: var(--boton);
+    font-size: 2rem;
+  }
+  
+  
+  main.container {
     display: flex;
     flex-direction: column;
-}
-
-main
-{
-    margin-top: 10%;
-     align-items: center;
-     justify-content: center;
-     gap: 3rem;
-    
-}
-form,#contenedor-historial,#contenedor-Balance,#contenedor-Promedio-Ingresos,#contenedor-Promedio-Gastos{
-    background-color: var(--blanco);
-    width: 100%;
-    padding: 1.5%;
-    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem auto;
+    width: 90%;
+    max-width: 800px;
+  }
+  
+  
+  section.balance {
+    background: var(--blanco);
+    padding: 1.5rem;
     border-radius: 0.5rem;
-
-}
-
-button{
+    box-shadow: 0 4px 6px var(--sombra);
+    text-align: center;
+    width: 100%;
+  }
+  
+  section.balance h2 {
+    color: var(--texto);
+    margin-bottom: 0.5rem;
+  }
+  
+  section.balance p {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--boton);
+  }
+  
+  
+  section.totals {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  section.totals div {
+    background: var(--blanco);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px var(--sombra);
+    text-align: center;
+    flex: 1;
+  }
+  
+  section.totals div h2 {
+    color: var(--texto);
+    margin-bottom: 0.5rem;
+  }
+  
+  section.totals div p {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  
+  section.new-transaction {
+    background: var(--blanco);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px var(--sombra);
+    width: 100%;
+  }
+  
+  section.new-transaction h2 {
+    margin-bottom: 1rem;
+    color: var(--texto);
+  }
+  
+  section.new-transaction form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+  
+  section.new-transaction form input,
+  section.new-transaction form select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--sombra);
+    border-radius: 0.5rem;
+  }
+  
+  section.new-transaction form button {
     background-color: var(--boton);
     color: var(--blanco);
     border: none;
-    padding: 10px;
+    padding: 0.75rem;
     border-radius: 0.5rem;
-}
-section{
-    width: 40%;
-}
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  section.new-transaction form button:hover {
+    background-color: var(--rojo);
+  }
+  
+  
+  section.history {
+    background: var(--blanco);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px var(--sombra);
+    width: 100%;
+  }
+  
+  section.history h2 {
+    margin-bottom: 1rem;
+    color: var(--texto);
+  }
+  
+  section.history input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--sombra);
+    border-radius: 0.5rem;
+  }
+  
+  .transaction-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--sombra);
+  }
+  
+  .transaction-row span {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .transaction-row button {
+    background-color: var(--rojo);
+    color: var(--blanco);
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .transaction-row button:hover {
+    background-color: #ff0000;
+  }
+  
+  
+  span.income {
+    color: var(--verde);
+    font-weight: bold;
+  }
+  
+  span.expense {
+    color: var(--rojo);
+    font-weight: bold;
+  }
+  
+  
+  .mensaje-error {
+    background-color: var(--rojo);
+    color: var(--blanco);
+    padding: 0.5rem;
+    text-align: center;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+  }
+  
+  .mensaje-exito {
+    background-color: var(--verde);
+    color: var(--blanco);
+    padding: 0.5rem;
+    text-align: center;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+  }
+  
+  
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+  }
+  
+  footer p {
+    color: var(--boton);
+    font-weight: bold;
+  }
+  
