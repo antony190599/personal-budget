@@ -1,72 +1,156 @@
-const presupuesto = new Budget();
+function App() {
+    this.budget = new Budget();
+}
 
-const formulario = document.getElementById("formulario");
-const montoInput = document.getElementById("input-monto");
-const tipoInput = document.getElementById("tipo");
-const balance = document.getElementById("contenido-balance");
-const pIngresos = document.getElementById("contenido-Promedio-Ingresos");
-const pGastos = document.getElementById("contenido-Promedio-Gastos");
-const historial = document.getElementById("contenido");
-const botonOrdenar = document.getElementById("btn-ordenar");
+// Busca transacciones por descripción
+App.prototype.searchTransactions = function (query) {
+    if (!query) return this.budget.transactions;
+    return this.budget.transactions.filter(transaction =>
+        transaction.description.toLowerCase().includes(query.toLowerCase())
+    );
+};
 
-// Actualiza las transacciones en el DOM
-function actualizarHistorial() {
-    historial.innerHTML = "";
-    presupuesto.transactions.forEach(transaction => {
-        const elemento = document.createElement("p");
-        elemento.textContent = `${transaction.getFormattedDate()} - ${transaction.type}: S/. ${transaction.amount.toFixed(2)}`;
+// Formatea los montos como "1,000.00"
+App.prototype.formatAmount = function (amount) {
+    return amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
-        const botonEliminar = document.createElement("button");
-        botonEliminar.textContent = "Eliminar";
-        botonEliminar.addEventListener("click", () => {
-            presupuesto.remove(transaction.id);
-            actualizarUI();
-        });
 
-        elemento.appendChild(botonEliminar);
-        historial.appendChild(elemento);
+App.prototype.getMonthName = function (date) {
+    const months = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+    const monthIndex = new Date(date).getMonth();
+    return months[monthIndex];
+};
+
+// Agrega una transacción
+App.prototype.addTransaction = function (transaction) {
+    const success = this.budget.addTransaction(transaction);
+    if (success) {
+        this.updateUI();
+    } else {
+        mostrarMensaje("No se pudo agregar la transacción.", "error");
+    }
+    return success;
+};
+
+// Elimina una transacción por ID
+App.prototype.deleteTransaction = function (id) {
+    const success = this.budget.deleteTransaction(id);
+    if (success) {
+        this.updateUI();
+    } else {
+        mostrarMensaje("No se pudo eliminar la transacción.", "error");
+    }
+    return success;
+};
+
+// Actualiza la UI
+App.prototype.updateUI = function () {
+    const balance = this.budget.transactions.reduce((acc, t) => acc + t.amount, 0);
+    const income = this.budget.getTotalByType("ingreso");
+    const expenses = this.budget.getTotalByType("gasto");
+
+    document.getElementById("balance-total").innerText = `S/. ${this.formatAmount(balance)}`;
+    document.getElementById("income-total").innerText = `S/. ${this.formatAmount(income)}`;
+    document.getElementById("expense-total").innerText = `S/. ${this.formatAmount(expenses)}`;
+    this.renderTransactions();
+};
+
+// Renderiza las transacciones
+App.prototype.renderTransactions = function () {
+    const history = document.getElementById("transaction-history");
+    history.innerHTML = "";
+
+    this.budget.transactions.forEach(transaction => {
+        const row = document.createElement("div");
+        row.classList.add("transaction-row");
+
+        const date = document.createElement("span");
+        date.innerText = this.getMonthName(transaction.date);
+
+        const description = document.createElement("span");
+        description.innerText = transaction.description;
+
+        const amount = document.createElement("span");
+        amount.innerText = `S/. ${this.formatAmount(transaction.amount)}`;
+        amount.classList.add(transaction.type === "ingreso" ? "income" : "expense");
+
+        const deleteButton = document.createElement("button");
+        deleteButton.innerText = "Eliminar";
+        deleteButton.onclick = () => this.deleteTransaction(transaction.id);
+
+        row.appendChild(date);
+        row.appendChild(description);
+        row.appendChild(amount);
+        row.appendChild(deleteButton);
+
+        history.appendChild(row);
     });
-}
+};
 
-// Actualiza el balance y los promedios en el DOM
-function actualizarUI() {
-    balance.textContent = `S/. ${presupuesto.calculateTotal().toFixed(2)}`;
-    actualizarPromedios();
-    actualizarHistorial();
-}
+// Inicializa la app
+const app = new App();
 
-// Calcula y actualiza los promedios de ingresos y gastos
-function actualizarPromedios() {
-    const ingresos = presupuesto.transactions.filter(t => t.type === "ingreso");
-    const gastos = presupuesto.transactions.filter(t => t.type === "gasto");
+// Evento para agregar una nueva transacción
+document.getElementById("transaction-form").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    const promedioIngresos = ingresos.length ? ingresos.reduce((sum, t) => sum + t.amount, 0) / ingresos.length : 0;
-    const promedioGastos = gastos.length ? gastos.reduce((sum, t) => sum + t.amount, 0) / gastos.length : 0;
+    const description = document.getElementById("description").value.trim();
+    const amount = parseFloat(document.getElementById("amount").value);
+    const type = document.getElementById("type").value;
+    const date = new Date().toISOString();
 
-    pIngresos.textContent = `S/. ${promedioIngresos.toFixed(2)}`;
-    pGastos.textContent = `S/. ${promedioGastos.toFixed(2)}`;
-}
+    if (description && !isNaN(amount) && validarValor(amount)) {
+        const transaction = new Transaction(Date.now(), description, amount, type, date);
+        app.addTransaction(transaction);
 
-// Agregar nueva transacción
-formulario.addEventListener("submit", event => {
-    event.preventDefault();
-
-    const monto = parseFloat(montoInput.value);
-    const tipo = tipoInput.value;
-
-    if (validarValor(monto)) {
-        const nuevaTransaccion = new Transaction(tipo, monto);
-        presupuesto.add(nuevaTransaccion);
-        actualizarUI();
-        formulario.reset();
+        // Limpiar el formulario
+        document.getElementById("description").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("type").value = "ingreso";
+    } else {
+        mostrarMensaje("Por favor, complete todos los campos correctamente.", "error");
     }
 });
 
-// Ordenar transacciones por monto
-botonOrdenar.addEventListener("click", () => {
-    presupuesto.transactions.sort((a, b) => b.amount - a.amount);
-    actualizarHistorial();
+// Evento para buscar transacciones por descripción
+document.getElementById("search").addEventListener("input", (e) => {
+    const query = e.target.value;
+    const filteredTransactions = app.searchTransactions(query);
+    app.renderFilteredTransactions(filteredTransactions);
 });
 
-// Inicialización
-actualizarUI();
+// Renderiza solo las transacciones filtradas
+App.prototype.renderFilteredTransactions = function (transactions) {
+    const history = document.getElementById("transaction-history");
+    history.innerHTML = "";
+
+    transactions.forEach(transaction => {
+        const row = document.createElement("div");
+        row.classList.add("transaction-row");
+
+        const date = document.createElement("span");
+        date.innerText = this.getMonthName(transaction.date);
+
+        const description = document.createElement("span");
+        description.innerText = transaction.description;
+
+        const amount = document.createElement("span");
+        amount.innerText = `S/. ${this.formatAmount(transaction.amount)}`;
+        amount.classList.add(transaction.type === "ingreso" ? "income" : "expense");
+
+        const deleteButton = document.createElement("button");
+        deleteButton.innerText = "Eliminar";
+        deleteButton.onclick = () => this.deleteTransaction(transaction.id);
+
+        row.appendChild(date);
+        row.appendChild(description);
+        row.appendChild(amount);
+        row.appendChild(deleteButton);
+
+        history.appendChild(row);
+    });
+};
